@@ -1,133 +1,123 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-type CVEItem = {
-  cve: {
-    CVE_data_meta: {
-      ID: string;
-    };
-    description: {
-      description_data: {
-        lang: string;
-        value: string;
-      }[];
-    };
-  };
-  impact?: {
-    baseMetricV3?: {
-      cvssV3?: {
-        baseSeverity?: string;
-        baseScore?: number;
-      };
-    };
-  };
-  publishedDate: string;
-};
-
-type CVEData = {
-  CVE_data_numberOfCVEs: string;
-  CVE_data_timestamp: string;
-  CVE_Items: CVEItem[];
-};
+import SearchBar from "./components/SearchBar";
+import CVEList from "./components/CVEList";
+import mockData from "../public/nvdcve-1.1-2024.json";
 
 export default function Home() {
-  const [cveData, setCveData] = useState<CVEData | null>(null);
+  const [filteredData, setFilteredData] = useState(mockData.CVE_Items || []);
+  const [vendors, setVendors] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const resultsPerPage = 20;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/nvdcve-1.1-2024.json");
-        const data = await response.json();
-        setCveData(data);
-      } catch (error) {
-        console.error("Error fetching JSON:", error);
-      }
-    };
-
-    fetchData();
+    const vendorList = Array.from(
+      new Set(
+        mockData.CVE_Items.flatMap((item) =>
+          item.configurations.nodes.flatMap((node) =>
+            node.cpe_match.map((cpe) => cpe.cpe23Uri.split(":")[3])
+          )
+        )
+      )
+    );
+    setVendors(vendorList);
   }, []);
 
-  if (!cveData) {
-    return <div className="text-center text-xl">Loading...</div>;
-  }
+  const handleSearch = (query: { keyword: string; vendor: string }) => {
+    const { keyword, vendor } = query;
 
-  const totalCVEs = cveData.CVE_data_numberOfCVEs;
-  const lastUpdated = new Date(cveData.CVE_data_timestamp).toLocaleDateString();
+    const results = mockData.CVE_Items.filter((item) => {
+      const matchesKeyword =
+        item.cve.CVE_data_meta.ID.includes(keyword) ||
+        item.cve.description.description_data.some((desc) =>
+          desc.value.includes(keyword)
+        );
 
-  const topCVEs = cveData.CVE_Items.slice(0, 5);
+      const matchesVendor = vendor
+        ? item.configurations.nodes.some((node) =>
+            node.cpe_match.some((cpe) => cpe.cpe23Uri.includes(vendor))
+          )
+        : true;
+
+      return matchesKeyword && matchesVendor;
+    });
+
+    setFilteredData(results);
+    setCurrentPage(1);
+  };
+
+  const startIndex = (currentPage - 1) * resultsPerPage;
+  const endIndex = startIndex + resultsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(filteredData.length / resultsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-center text-gray-800">
-          CVE Dashboard
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      {/* Überschrift und Beschreibung */}
+      <header className="mb-6 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+          Risikoscore Dashboard
         </h1>
-        <p className="text-center text-gray-600">
-          Übersicht über aktuelle Sicherheitslücken
+        <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
+          Willkommen beim <strong>Risikoscore Dashboard</strong>! Dieses Tool
+          hilft Ihnen, Sicherheitslücken (CVEs) anhand verschiedener
+          Bewertungssysteme zu analysieren und zu vergleichen.
+        </p>
+        <p className="text-lg text-gray-600 mt-2 max-w-3xl mx-auto">
+          Nutzen Sie die <strong>Suchfunktion</strong>, um Schwachstellen anhand
+          von Schlüsselwörtern, IDs oder Vendoren zu finden. Für jede
+          Sicherheitslücke erhalten Sie Bewertungen wie:
         </p>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white shadow-md p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-700">Total CVEs</h2>
-          <p className="text-2xl font-bold text-gray-900">{totalCVEs}</p>
-        </div>
-        <div className="bg-white shadow-md p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Last Updated
-          </h2>
-          <p className="text-2xl font-bold text-gray-900">{lastUpdated}</p>
-        </div>
-        <div className="bg-white shadow-md p-4 rounded-lg">
-          <h2 className="text-lg font-semibold text-gray-700">
-            Critical CVEs
-          </h2>
-          <p className="text-2xl font-bold text-red-600">
-            {
-              cveData.CVE_Items.filter(
-                (item) =>
-                  item.impact?.baseMetricV3?.cvssV3?.baseSeverity === "CRITICAL"
-              ).length
-            }
-          </p>
-        </div>
-      </section>
+      {/* Suchleiste */}
+      <SearchBar onSearch={handleSearch} vendors={vendors} />
 
-      <section className="mt-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Top 5 CVEs</h2>
-        <ul className="space-y-4">
-          {topCVEs.map((item) => (
-            <li
-              key={item.cve.CVE_data_meta.ID}
-              className="bg-white shadow-md p-4 rounded-lg"
-            >
-              <h3 className="text-lg font-semibold text-gray-900">
-                {item.cve.CVE_data_meta.ID}
-              </h3>
-              <p className="text-gray-700 mt-2">
-                {item.cve.description.description_data[0]?.value || "No description available."}
-              </p>
-              {item.impact?.baseMetricV3 && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Severity:{" "}
-                  <span
-                    className={`font-semibold ${
-                      item.impact.baseMetricV3.cvssV3?.baseSeverity === "CRITICAL"
-                        ? "text-red-600"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {item.impact.baseMetricV3.cvssV3?.baseSeverity || "Unknown"}
-                  </span>
-                  {" - Score: "}
-                  {item.impact.baseMetricV3.cvssV3?.baseScore || "N/A"}
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
+      {/* Ergebnisliste */}
+      <CVEList items={currentData} />
+
+      {/* Paginierung */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          Previous
+        </button>
+        <p className="text-gray-700">
+          Page {currentPage} of {totalPages}
+        </p>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded ${
+            currentPage === totalPages
+              ? "bg-gray-300 cursor-not-allowed"
+              : "bg-blue-500 text-white"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }
