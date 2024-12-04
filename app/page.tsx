@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 
 type CVEItem = {
@@ -16,8 +17,8 @@ type CVEItem = {
   impact?: {
     baseMetricV3?: {
       cvssV3?: {
-        baseSeverity: string;
-        baseScore: number;
+        baseSeverity?: string;
+        baseScore?: number;
       };
     };
   };
@@ -35,9 +36,13 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("/nvdcve-1.1-2024.json");
-      const data = await response.json();
-      setCveData(data);
+      try {
+        const response = await fetch("/nvdcve-1.1-2024.json");
+        const data = await response.json();
+        setCveData(data);
+      } catch (error) {
+        console.error("Error fetching JSON:", error);
+      }
     };
 
     fetchData();
@@ -101,22 +106,22 @@ export default function Home() {
                 {item.cve.CVE_data_meta.ID}
               </h3>
               <p className="text-gray-700 mt-2">
-                {item.cve.description.description_data[0]?.value}
+                {item.cve.description.description_data[0]?.value || "No description available."}
               </p>
               {item.impact?.baseMetricV3 && (
                 <p className="text-sm text-gray-500 mt-2">
                   Severity:{" "}
                   <span
                     className={`font-semibold ${
-                      item.impact.baseMetricV3.cvssV3.baseSeverity === "CRITICAL"
+                      item.impact.baseMetricV3.cvssV3?.baseSeverity === "CRITICAL"
                         ? "text-red-600"
                         : "text-gray-700"
                     }`}
                   >
-                    {item.impact.baseMetricV3.cvssV3.baseSeverity}
+                    {item.impact.baseMetricV3.cvssV3?.baseSeverity || "Unknown"}
                   </span>
                   {" - Score: "}
-                  {item.impact.baseMetricV3.cvssV3.baseScore}
+                  {item.impact.baseMetricV3.cvssV3?.baseScore || "N/A"}
                 </p>
               )}
             </li>
