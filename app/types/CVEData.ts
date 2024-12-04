@@ -19,5 +19,12 @@ export interface CVEData {
         };
       };
     };
+    configurations: {
+      nodes: {
+        cpe_match: {
+          cpe23Uri: string;
+        }[];
+      }[];
+    };
   }
   

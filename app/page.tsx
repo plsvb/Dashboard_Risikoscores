@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import SearchBar from "./components/SearchBar";
 import CVEList from "./components/CVEList";
+import { CVEData } from "./types/CVEData"; // Pfad anpassen
 import mockData from "../public/nvdcve-1.1-2024.json";
 
 export default function Home() {
-  const [filteredData, setFilteredData] = useState(mockData.CVE_Items || []);
+  const [filteredData, setFilteredData] = useState<CVEData[]>(mockData.CVE_Items || []);
   const [vendors, setVendors] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const resultsPerPage = 20;
@@ -14,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     const vendorList = Array.from(
       new Set(
-        mockData.CVE_Items.flatMap((item) =>
+        mockData.CVE_Items.flatMap((item: CVEData) =>
           item.configurations.nodes.flatMap((node) =>
             node.cpe_match.map((cpe) => cpe.cpe23Uri.split(":")[3])
           )
@@ -27,7 +28,7 @@ export default function Home() {
   const handleSearch = (query: { keyword: string; vendor: string }) => {
     const { keyword, vendor } = query;
 
-    const results = mockData.CVE_Items.filter((item) => {
+    const results = mockData.CVE_Items.filter((item: CVEData) => {
       const matchesKeyword =
         item.cve.CVE_data_meta.ID.includes(keyword) ||
         item.cve.description.description_data.some((desc) =>
@@ -66,32 +67,21 @@ export default function Home() {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
-      {/* Überschrift und Beschreibung */}
+    <div className="p-6">
       <header className="mb-6 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-          Risikoscore Dashboard
-        </h1>
-        <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
-          Willkommen beim <strong>Risikoscore Dashboard</strong>! Dieses Tool
-          hilft Ihnen, Sicherheitslücken (CVEs) anhand verschiedener
-          Bewertungssysteme zu analysieren und zu vergleichen.
-        </p>
-        <p className="text-lg text-gray-600 mt-2 max-w-3xl mx-auto">
-          Nutzen Sie die <strong>Suchfunktion</strong>, um Schwachstellen anhand
-          von Schlüsselwörtern, IDs oder Vendoren zu finden. Für jede
-          Sicherheitslücke erhalten Sie Bewertungen wie:
+        <h1 className="text-4xl font-bold text-gray-800">Risikoscore Dashboard</h1>
+        <p className="text-lg text-gray-600 mt-2">
+          Willkommen beim Risikoscore Dashboard! Nutzen Sie die Suchfunktion,
+          um Sicherheitslücken anhand von Schlüsselwörtern, IDs oder Vendoren
+          zu finden. Blättern Sie durch die Ergebnisse, um detaillierte
+          Informationen zu erhalten.
         </p>
       </header>
 
-      {/* Suchleiste */}
       <SearchBar onSearch={handleSearch} vendors={vendors} />
-
-      {/* Ergebnisliste */}
       <CVEList items={currentData} />
 
-      {/* Paginierung */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+      <div className="flex justify-between items-center mt-4">
         <button
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
@@ -103,7 +93,7 @@ export default function Home() {
         >
           Previous
         </button>
-        <p className="text-gray-700">
+        <p>
           Page {currentPage} of {totalPages}
         </p>
         <button
