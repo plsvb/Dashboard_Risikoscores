@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { CVEData } from "../types/CVEData"; // Pfad anpassen
 
 export default function CVEListItem({
   item,
   isExpanded,
   onClick,
 }: {
-  item: any;
+  item: CVEData;
   isExpanded: boolean;
   onClick: () => void;
 }) {
@@ -58,7 +59,6 @@ export default function CVEListItem({
         isExpanded ? "bg-gray-100" : "bg-white"
       }`}
     >
-      {/* Header */}
       <h3 className="font-bold text-lg text-center sm:text-left">
         {item.cve.CVE_data_meta.ID}
       </h3>
@@ -66,7 +66,6 @@ export default function CVEListItem({
         {item.cve.description.description_data[0]?.value || "No description available"}
       </p>
 
-      {/* Scores */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
         {Object.entries(scores).map(([key, value]) => (
           <div key={key} className="text-center group relative">
@@ -79,10 +78,8 @@ export default function CVEListItem({
         ))}
       </div>
 
-      {/* Erweiterte Informationen */}
       {isExpanded && (
         <div className="mt-4">
-          {/* Impact Details */}
           <h4 className="text-lg font-semibold">Impact Details</h4>
           <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
             <li>
@@ -99,10 +96,9 @@ export default function CVEListItem({
             </li>
           </ul>
 
-          {/* References */}
           <h4 className="text-lg font-semibold mt-4">References</h4>
           <ul className="list-disc list-inside text-sm text-blue-500 space-y-1">
-            {item.cve.references.reference_data.map((ref: any, index: number) => (
+            {item.cve.references.reference_data.map((ref, index) => (
               <li key={index}>
                 <a
                   href={ref.url}
