@@ -1,7 +1,8 @@
 import { useState } from "react";
 import CVEListItem from "./CVEListItem";
+import { CVEData } from "../types/CVEData"; // Pfad anpassen
 
-export default function CVEList({ items }: { items: any[] }) {
+export default function CVEList({ items }: { items: CVEData[] }) {
   const [expandedCVE, setExpandedCVE] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
