@@ -7,7 +7,9 @@ import DashboardTop from "../components/DashboardTop"; // DashboardTop-Komponent
 import DashboardBottom from "../components/DashboardBottom";
 import Link from "next/link";
 
-
+export default function SavedVulnerabilities() {
+  const [filteredData, setFilteredData] = useState<CVEData[]>([]);
+  const [savedCVEIds, setSavedCVEIds] = useState<string[]>([]);
 
   useEffect(() => {
     // Lade gespeicherte IDs aus dem Local Storage

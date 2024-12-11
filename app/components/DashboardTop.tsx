@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CVEData } from "../types/CVEData"; // Typdefinition anpassen
 
 export default function DashboardTop() {
-  const [savedVulnerabilities, setSavedVulnerabilities] = useState<CVEData[]>([]);
+ // const [savedVulnerabilities, setSavedVulnerabilities] = useState<CVEData[]>([]);
   const [totalCombinedScore, setTotalCombinedScore] = useState<number>(0);
   const [securityStatus, setSecurityStatus] = useState<string>("");
 
