@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-
 import localFont from "next/font/local";
 import Link from "next/link";
 import "./globals.css";
@@ -15,8 +14,6 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
   weight: "100 900",
 });
-
-
 
 export default function RootLayout({
   children,
@@ -61,43 +58,66 @@ export default function RootLayout({
                 ></path>
               </svg>
             </button>
-            {/* Menü */}
-            <ul
+            {/* Menüs */}
+            <div
               className={`${
                 menuOpen ? "block" : "hidden"
-              } absolute lg:static top-16 left-0 w-full bg-blue-500 lg:bg-transparent lg:flex lg:space-x-4`}
+              } absolute lg:static top-16 left-0 w-full bg-blue-500 lg:bg-transparent lg:flex lg:space-x-8`}
             >
-              <li className="p-2 lg:p-0">
-                <Link href="/" className="hover:underline block">
-                  Home
-                </Link>
-              </li>
-              <li className="p-2 lg:p-0">
-                <Link href="/cvss" className="hover:underline block">
-                  CVSS
-                </Link>
-              </li>
-              <li className="p-2 lg:p-0">
-                <Link href="/epss" className="hover:underline block">
-                  EPSS
-                </Link>
-              </li>
-              <li className="p-2 lg:p-0">
-                <Link href="/ssvc" className="hover:underline block">
-                  SSVC
-                </Link>
-              </li>
-              <li className="p-2 lg:p-0">
-                <Link href="/vpr" className="hover:underline block">
-                  VPR
-                </Link>
-              </li>
-              <li className="p-2 lg:p-0">
-                <Link href="/combined" className="hover:underline block">
-                  Combined
-                </Link>
-              </li>
-            </ul>
+              {/* Menü für Ansichten */}
+              <ul className="lg:flex lg:space-x-4">
+                <li className="p-2 lg:p-0">
+                  <Link href="/dashboard" className="hover:underline block">
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="p-2 lg:p-0">
+                  <Link href="/detailanalyse" className="hover:underline block">
+                    Detailanalyse
+                  </Link>
+                </li>
+                <li className="p-2 lg:p-0">
+                  <Link href="/" className="hover:underline block">
+                    Schwachstellendatenbank
+                  </Link>
+                </li>
+              </ul>
+              {/* Menü für Risikoscores */}
+              <ul className="lg:flex lg:space-x-4 mt-4 lg:mt-0">
+                <li className="p-2 lg:p-0 relative group">
+                  <span className="hover:underline block cursor-pointer">
+                    Information zu Risikoscores
+                  </span>
+                  <ul className="hidden group-hover:block absolute bg-blue-600 text-white rounded shadow-md mt-2">
+                    <li className="p-2">
+                      <Link href="/cvss" className="hover:underline block">
+                        CVSS
+                      </Link>
+                    </li>
+                    <li className="p-2">
+                      <Link href="/epss" className="hover:underline block">
+                        EPSS
+                      </Link>
+                    </li>
+                    <li className="p-2">
+                      <Link href="/ssvc" className="hover:underline block">
+                        SSVC
+                      </Link>
+                    </li>
+                    <li className="p-2">
+                      <Link href="/vpr" className="hover:underline block">
+                        VPR
+                      </Link>
+                    </li>
+                    <li className="p-2">
+                      <Link href="/combined" className="hover:underline block">
+                        Combined
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
           </nav>
         </header>
 

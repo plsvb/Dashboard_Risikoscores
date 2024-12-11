@@ -10,6 +10,7 @@ export default function Home() {
   const [filteredData, setFilteredData] = useState<CVEData[]>(mockData.CVE_Items || []);
   const [vendors, setVendors] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedCVEIds, setSavedCVEIds] = useState<string[]>([]);
   const resultsPerPage = 20;
 
   useEffect(() => {
@@ -24,6 +25,17 @@ export default function Home() {
     );
     setVendors(vendorList);
   }, []);
+
+  useEffect(() => {
+    // Lade die gespeicherten CVEs aus dem Local Storage
+    const savedIds = JSON.parse(localStorage.getItem("savedCVEIds") || "[]");
+    setSavedCVEIds(savedIds);
+  }, []);
+
+  useEffect(() => {
+    // Speichere die Merkliste im Local Storage
+    localStorage.setItem("savedCVEIds", JSON.stringify(savedCVEIds));
+  }, [savedCVEIds]);
 
   const handleSearch = (query: { keyword: string; vendor: string }) => {
     const { keyword, vendor } = query;
@@ -46,6 +58,15 @@ export default function Home() {
 
     setFilteredData(results);
     setCurrentPage(1);
+  };
+
+  // Definition von onToggleSave
+  const onToggleSave = (id: string) => {
+    setSavedCVEIds((prevIds) =>
+      prevIds.includes(id)
+        ? prevIds.filter((savedId) => savedId !== id)
+        : [...prevIds, id]
+    );
   };
 
   const startIndex = (currentPage - 1) * resultsPerPage;
@@ -79,7 +100,11 @@ export default function Home() {
       </header>
 
       <SearchBar onSearch={handleSearch} vendors={vendors} />
-      <CVEList items={currentData} />
+      <CVEList
+        items={currentData}
+        savedCVEIds={savedCVEIds}
+        onToggleSave={onToggleSave}
+      />
 
       <div className="flex justify-between items-center mt-4">
         <button

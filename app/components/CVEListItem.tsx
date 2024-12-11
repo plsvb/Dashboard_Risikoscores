@@ -3,12 +3,12 @@ import { CVEData } from "../types/CVEData"; // Pfad anpassen
 
 export default function CVEListItem({
   item,
-  isExpanded,
-  onClick,
+  isSaved,
+  onToggleSave,
 }: {
   item: CVEData;
-  isExpanded: boolean;
-  onClick: () => void;
+  isSaved: boolean;
+  onToggleSave: (id: string) => void;
 }) {
   const [scores, setScores] = useState({
     CVSS: 0,
@@ -17,6 +17,7 @@ export default function CVEListItem({
     VPR: 0,
     combined: 0,
   });
+  const [isExpanded, setIsExpanded] = useState(false); // Zustand für die Detailansicht
 
   useEffect(() => {
     const fetchScores = async () => {
@@ -53,16 +54,19 @@ export default function CVEListItem({
   };
 
   return (
-    <li
-      onClick={onClick}
-      className={`border p-4 rounded shadow transition-all cursor-pointer ${
-        isExpanded ? "bg-gray-100" : "bg-white"
-      }`}
-    >
-      <h3 className="font-bold text-lg text-center sm:text-left">
-        {item.cve.CVE_data_meta.ID}
-      </h3>
-      <p className="text-sm mt-2 text-gray-700 text-center sm:text-left">
+    <li className="border p-4 rounded shadow bg-white">
+      <div className="flex justify-between items-center">
+        <h3 className="font-bold text-lg">{item.cve.CVE_data_meta.ID}</h3>
+        <button
+          onClick={() => onToggleSave(item.cve.CVE_data_meta.ID)}
+          className={`px-3 py-1 rounded text-sm ${
+            isSaved ? "bg-red-500 text-white" : "bg-green-300 text-black"
+          }`}
+        >
+          {isSaved ? "Von Merkliste entfernen" : "Zu Merkliste hinzufügen"}
+        </button>
+      </div>
+      <p className="text-sm mt-2 text-gray-700">
         {item.cve.description.description_data[0]?.value || "No description available"}
       </p>
 
@@ -78,12 +82,22 @@ export default function CVEListItem({
         ))}
       </div>
 
+      <div className="mt-4 flex justify-end space-x-2">
+        <button
+          onClick={() => setIsExpanded((prev) => !prev)} // Umschalten der Detailansicht
+          className="px-4 py-2 bg-blue-500 text-white text-sm rounded"
+        >
+          {isExpanded ? "Detailansicht schließen" : "Detailansicht"}
+        </button>
+      </div>
+
+      {/* Detailansicht */}
       {isExpanded && (
-        <div className="mt-4">
-          <h4 className="text-lg font-semibold">Impact Details</h4>
-          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+        <div className="mt-4 bg-gray-100 p-4 rounded shadow">
+          <h4 className="text-lg font-semibold">Zusätzliche Details</h4>
+          <ul className="list-disc pl-4 text-sm text-gray-800">
             <li>
-              <strong>Severity:</strong>{" "}
+              <strong>Schweregrad:</strong>{" "}
               {item.impact?.baseMetricV3?.cvssV3?.baseSeverity || "N/A"}
             </li>
             <li>
@@ -91,25 +105,26 @@ export default function CVEListItem({
               {item.impact?.baseMetricV3?.cvssV3?.baseScore || "N/A"}
             </li>
             <li>
-              <strong>Attack Vector:</strong>{" "}
+              <strong>Angriffsvektor:</strong>{" "}
               {item.impact?.baseMetricV3?.cvssV3?.attackVector || "N/A"}
             </li>
-          </ul>
-
-          <h4 className="text-lg font-semibold mt-4">References</h4>
-          <ul className="list-disc list-inside text-sm text-blue-500 space-y-1">
-            {item.cve.references.reference_data.map((ref, index) => (
-              <li key={index}>
-                <a
-                  href={ref.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-words hover:underline"
-                >
-                  {ref.name || ref.url}
-                </a>
-              </li>
-            ))}
+            <li>
+              <strong>Referenzen:</strong>
+              <ul className="list-disc pl-4">
+                {item.cve.references.reference_data.map((ref, index) => (
+                  <li key={index}>
+                    <a
+                      href={ref.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      {ref.name || ref.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
           </ul>
         </div>
       )}

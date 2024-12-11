@@ -1,22 +1,23 @@
-import { useState } from "react";
 import CVEListItem from "./CVEListItem";
 import { CVEData } from "../types/CVEData"; // Pfad anpassen
 
-export default function CVEList({ items }: { items: CVEData[] }) {
-  const [expandedCVE, setExpandedCVE] = useState<string | null>(null);
-
-  const toggleExpand = (id: string) => {
-    setExpandedCVE(expandedCVE === id ? null : id);
-  };
-
+export default function CVEList({
+  items,
+  savedCVEIds,
+  onToggleSave,
+}: {
+  items: CVEData[];
+  savedCVEIds: string[];
+  onToggleSave: (id: string) => void;
+}) {
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map((item) => (
         <CVEListItem
           key={item.cve.CVE_data_meta.ID}
           item={item}
-          isExpanded={expandedCVE === item.cve.CVE_data_meta.ID}
-          onClick={() => toggleExpand(item.cve.CVE_data_meta.ID)}
+          isSaved={savedCVEIds.includes(item.cve.CVE_data_meta.ID)}
+          onToggleSave={onToggleSave} // Weitergabe der Funktion
         />
       ))}
     </ul>
