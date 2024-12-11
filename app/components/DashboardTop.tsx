@@ -20,7 +20,7 @@ export default function DashboardTop() {
           savedIds.includes(item.cve.CVE_data_meta.ID)
         );
 
-        setSavedVulnerabilities(vulnerabilities);
+       // setSavedVulnerabilities(vulnerabilities);
 
         // Berechne den totalCombinedScore
         const combinedScore = vulnerabilities.reduce((acc, item) => {

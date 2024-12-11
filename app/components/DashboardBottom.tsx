@@ -20,7 +20,7 @@ export default function DashboardBottom() {
           savedIds.includes(item.cve.CVE_data_meta.ID)
         );
 
-        setSavedVulnerabilities(vulnerabilities);
+       // setSavedVulnerabilities(vulnerabilities);
 
         // Berechne betroffene Systeme
         const systems = new Set(
