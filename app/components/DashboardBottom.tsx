@@ -24,12 +24,13 @@ export default function DashboardBottom() {
 
         // Berechne betroffene Systeme
         const systems = new Set(
-          vulnerabilities.flatMap((vul) =>
-            vul.configurations.nodes.flatMap((node) =>
-              node.cpe_match.map((cpe) => cpe.cpe23Uri)
+            vulnerabilities.flatMap((vul: any) =>
+              vul.configurations.nodes.flatMap((node: any) =>
+                node.cpe_match.map((cpe: any) => cpe.cpe23Uri)
+              )
             )
-          )
-        );
+          );
+          
         setAffectedSystems(systems.size);
 
         // Berechne Angriffsvektoren
