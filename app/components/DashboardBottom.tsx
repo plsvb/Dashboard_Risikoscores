@@ -6,7 +6,7 @@ import { CVEData } from "../types/CVEData"; // Pfad anpassen
 export default function DashboardBottom() {
   const [affectedSystems, setAffectedSystems] = useState<number>(0);
   const [attackVectors, setAttackVectors] = useState<Record<string, number>>({});
-  const [savedVulnerabilities, setSavedVulnerabilities] = useState<CVEData[]>([]);
+  //const [savedVulnerabilities, setSavedVulnerabilities] = useState<CVEData[]>([]);
 
   useEffect(() => {
     // Lade gespeicherte Schwachstellen aus dem Local Storage

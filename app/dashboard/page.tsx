@@ -5,6 +5,7 @@ import { CVEData } from "../types/CVEData"; // Pfad anpassen
 import CVEListItem from "../components/CVEListItem"; // CVEListItem-Komponente importieren
 import DashboardTop from "../components/DashboardTop"; // DashboardTop-Komponente importieren
 import DashboardBottom from "../components/DashboardBottom";
+import Link from "next/link";
 
 export default function SavedVulnerabilities() {
   const [filteredData, setFilteredData] = useState<CVEData[]>([]);
@@ -58,12 +59,12 @@ export default function SavedVulnerabilities() {
         <h2 className="text-3xl font-bold text-gray-700 mb-4">Gemerkte Schwachstellen</h2>
         <p className="text-md text-gray-600 mb-6">
   Eine Übersicht aller gespeicherten Schwachstellen und deren Details. Besuche die{' '}
-  <a
+  <Link
     href="/"
     className="text-blue-500 hover:underline"
   >
     Schwachstellen-Datenbank
-  </a>{' '}
+  </Link>{' '}
   um Schwachstellen zu deinen Projekt hinzuzufügen.
 </p>
 
